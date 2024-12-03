@@ -13,5 +13,5 @@ container = Frame(root, width=screen_width - 200, height=screen_height - 300, bd
 container.pack_propagate(False)
 container.place(x=100, y=150)
 buttonFile = Button(root, text="Wczytaj plik", command=lambda: get_data_from_files(container, root))
-buttonFile.place(x=50, y=50)
+buttonFile.place(x=100, y=50)
 root.mainloop()

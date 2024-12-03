@@ -13,13 +13,17 @@ class Classification:
         self.tp = [0, 0]
         self.fp = [0, 0]
         self.fn = [0, 0]
+        self.page = 1
 
     def create_button(self):
         button = Button(self.root, text="Klasyfikacyjny", command=lambda: self.start_rating())
-        button.place(x=50, y=100)
+        button.place(x=100, y=100)
         button.config(width=15, height=1)
 
     def start_rating(self):
+        button = Button(self.root, text="Następna strona", command=lambda: self.change_page())
+        button.place(x=1320, y=720)
+        button.config(width=15, height=1)
         matrices = Frame(self.container)
         title = Label(matrices, text="Macierze pomyłek", justify="center", font=("Arial", 30))
         title.pack(side="top")
@@ -182,6 +186,19 @@ class Classification:
         elif model1 < model2:
             value1.config(fg="red")
             value2.config(fg="green")
+
+    def change_page(self):
+        if self.page == 1:
+            self.page = 2
+            self.clear_container()
+        else:
+            self.page = 1
+            self.clear_container()
+            self.start_rating()
+
+    def clear_container(self):
+        for children in self.container.winfo_children():
+            children.destroy()
 
 
 

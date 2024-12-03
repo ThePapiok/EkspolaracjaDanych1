@@ -10,5 +10,5 @@ class Regression:
 
     def create_button(self):
         button = Button(self.root, text="Regresyjny")
-        button.place(x=200, y=100)
+        button.place(x=250, y=100)
         button.config(width=15, height=1)
