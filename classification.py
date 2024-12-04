@@ -1,7 +1,7 @@
 from tkinter import Button, Frame, Label, Canvas
 
 class Classification:
-    def __init__(self, container, root, data):
+    def __init__(self, container, root, data, button):
         self.container = container
         self.data = data
         self.root = root
@@ -13,6 +13,7 @@ class Classification:
         self.page = None
         self.calculate_confusion_matrix(self.data["C50_PV"], 0)
         self.calculate_confusion_matrix(self.data["rf_PV"], 1)
+        self.button = button
 
     def create_button(self):
         button = Button(self.root, text="Klasyfikacyjny", command=lambda: self.start_rating())
@@ -22,9 +23,8 @@ class Classification:
     def start_rating(self):
         self.clear_container()
         self.page = 1
-        button = Button(self.root, text="Następna strona", command=lambda: self.change_page())
-        button.place(x=1320, y=720)
-        button.config(width=15, height=1)
+        self.button.config(command=lambda: self.change_page(), text="Krzywe ROC")
+        self.button.place(x=1320, y=720)
         matrices = Frame(self.container)
         title = Label(matrices, text="Macierze pomyłek", justify="center", font=("Arial", 30))
         title.pack(side="top")
@@ -323,6 +323,7 @@ class Classification:
         if self.page == 1:
             self.page = 2
             self.clear_container()
+            self.button.config(text="Ocena jakości")
             self.roc_auc()
         else:
             self.page = 1

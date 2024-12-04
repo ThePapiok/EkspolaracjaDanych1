@@ -2,7 +2,7 @@ from math import sqrt
 from tkinter import Button, Frame, Label
 
 class Regression:
-    def __init__(self, container, root, data):
+    def __init__(self, container, root, data, button):
         self.root = root
         self.data = data
         self.container=container
@@ -10,6 +10,8 @@ class Regression:
         self.differences1 = []
         self.differences2 = []
         self.calculate_differences(self.data["przewidywana1"], self.data["przewidywana2"])
+        self.button = button
+        self.page = 1
 
     def create_button(self):
         button = Button(self.root, text="Regresyjny", command=lambda: self.start_rating())
@@ -19,6 +21,10 @@ class Regression:
 
 
     def start_rating(self):
+        self.clear_container()
+        self.page = 1
+        self.button.config(command=lambda: self.change_page(), text="Histogramy")
+        self.button.place(x=1320, y=720)
         mae1 = self.calculate_mae(True)
         mae2 = self.calculate_mae(False)
         mse1 = self.calculate_mse(True)
@@ -144,3 +150,17 @@ class Regression:
         elif model1 < model2:
             value1.config(fg="red")
             value2.config(fg="green")
+
+    def change_page(self):
+        if self.page == 1:
+            self.page = 2
+            self.clear_container()
+            self.button.config(text="Ocena jakości")
+        else:
+            self.page = 1
+            self.clear_container()
+            self.start_rating()
+
+    def clear_container(self):
+        for children in self.container.winfo_children():
+            children.destroy()

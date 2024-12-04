@@ -7,7 +7,7 @@ from classification import Classification
 from regression import Regression
 
 
-def get_data_from_files(container, root):
+def get_data_from_files(container, root, button):
     classification_data = None
     regression_data = None
     while True:
@@ -36,5 +36,5 @@ def get_data_from_files(container, root):
                 messagebox.showwarning("Ostrzeżenie", "To nie model klasyfikacyjny, spróbuj ponownie")
         else:
             return
-    Classification(container, root, classification_data)
-    Regression(container, root, regression_data)
+    Classification(container, root, classification_data, button)
+    Regression(container, root, regression_data, button)
