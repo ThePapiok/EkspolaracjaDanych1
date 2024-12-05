@@ -3,12 +3,6 @@ import numpy as np
 from math import sqrt
 from tkinter import Button, Frame, Label, Canvas
 
-from matplotlib import pyplot as plt
-from networkx.algorithms.operators.binary import difference
-from numpy.core.defchararray import center
-from scipy.stats import norm
-
-
 class Regression:
     def __init__(self, container, root, data, button):
         self.root = root
@@ -250,22 +244,14 @@ class Regression:
     def create_normal_curve(self, data, chart, min_bound, max_bound, max_bound_y, bin_width):
         std = np.std(data)
         mean = np.mean(data)
-        print(std)
-        print(mean)
         inc_x = 570/abs(max_bound - min_bound)
         inc_y = 420/max_bound_y
-        print(data)
         x1_point = 0
         y1_point = 0
         for x in range(min_bound, max_bound + 1):
             y = (1/(std*sqrt(2*math.pi)))*math.e**(-(x - mean)**2/(2*std**2))
             y2_point = y * len(data) * bin_width * inc_y
             x2_point = x1_point + inc_x
-            #print(y1_point)
-            #print(y2_point)
-            #print(y)
-            #print("p1 : ", int(x1_point), 420 - int(y1_point))
-            #print("p1 : ", int(x2_point), 420 - int(y2_point))
             chart.create_line(int(x1_point), 420 - int(y1_point), int(x2_point), 420 - int(y2_point), fill="orange")
             y1_point = y2_point
             x1_point = x2_point
