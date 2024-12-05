@@ -1,5 +1,13 @@
+import math
+import numpy as np
 from math import sqrt
-from tkinter import Button, Frame, Label
+from tkinter import Button, Frame, Label, Canvas
+
+from matplotlib import pyplot as plt
+from networkx.algorithms.operators.binary import difference
+from numpy.core.defchararray import center
+from scipy.stats import norm
+
 
 class Regression:
     def __init__(self, container, root, data, button):
@@ -142,12 +150,146 @@ class Regression:
                 mape += (abs(self.differences2[i]))/yi
         return (mape / len_data) * 100, equal_0
 
+    def hist(self):
+        title = Label(self.container, text="Histogramy", font=("Arial", 20), justify="center")
+        title.pack(side="top")
+        container_hist = Frame(self.container, height=500)
+        container_hist.pack_propagate(False)
+        container_hist.pack(side="top", fill="x")
+        self.create_hist(container_hist, 1, self.differences1)
+        padding = Label(container_hist, width=10)
+        padding.pack(side="left")
+        self.create_hist(container_hist, 2, self.differences2)
+
+    def create_hist(self, container_hist, index, differences):
+        hist = Frame(container_hist, width=620, height=500)
+        hist.pack_propagate(False)
+        hist.pack(side="left")
+        hist_title = Label(hist, text="Model " + str(index), font=("Arial", 15))
+        hist_title.pack(side="top", fill="x")
+        chart_container = Frame(hist, height=470)
+        chart_container.pack_propagate(False)
+        chart_container.pack(side="top", fill="x")
+        y_chart = Canvas(chart_container, width=50, borderwidth=0, highlightthickness=0)
+        y_chart.pack_propagate(False)
+        y_chart.pack(side="left", fill="y")
+        y_chart.create_line(50, 0, 40, 0, fill="black")
+        y_chart.create_line(50, 35, 40, 35, fill="black")
+        y_chart.create_line(50, 70, 40, 70, fill="black")
+        y_chart.create_line(50, 105, 40, 105, fill="black")
+        y_chart.create_line(50, 140, 40, 140, fill="black")
+        y_chart.create_line(50, 175, 40, 175, fill="black")
+        y_chart.create_line(50, 210, 40, 210, fill="black")
+        y_chart.create_line(50, 245, 40, 245, fill="black")
+        y_chart.create_line(50, 280, 40, 280, fill="black")
+        y_chart.create_line(50, 315, 40, 315, fill="black")
+        y_chart.create_line(50, 350, 40, 350, fill="black")
+        y_chart.create_line(50, 385, 40, 385, fill="black")
+        y_chart.create_line(50, 420, 40, 420, fill="black")
+        x_chart_and_chart = Frame(chart_container, width=571)
+        x_chart_and_chart.pack_propagate(False)
+        x_chart_and_chart.pack(side="left", fill="y")
+        chart = Canvas(x_chart_and_chart, height=421, borderwidth=0, highlightthickness=0)
+        chart.pack(side="top", fill="x")
+        chart.create_line(0, 420, 550, 420, fill="#a6a6a6")
+        chart.create_line(0, 385, 550, 385, fill="#a6a6a6")
+        chart.create_line(0, 350, 550, 350, fill="#a6a6a6")
+        chart.create_line(0, 315, 550, 315, fill="#a6a6a6")
+        chart.create_line(0, 280, 550, 280, fill="#a6a6a6")
+        chart.create_line(0, 245, 550, 245, fill="#a6a6a6")
+        chart.create_line(0, 210, 550, 210, fill="#a6a6a6")
+        chart.create_line(0, 175, 550, 175, fill="#a6a6a6")
+        chart.create_line(0, 140, 550, 140, fill="#a6a6a6")
+        chart.create_line(0, 105, 550, 105, fill="#a6a6a6")
+        chart.create_line(0, 70, 550, 70, fill="#a6a6a6")
+        chart.create_line(0, 35, 550, 35, fill="#a6a6a6")
+        x_chart = Canvas(x_chart_and_chart, height=50, borderwidth=0, highlightthickness=0)
+        x_chart.pack(side="top", fill="x")
+        bins = math.ceil(1 + math.log2(len(differences))) + 2
+        inc = int(550 / bins)
+        bound, inc_data = self.calculate_inc_data(differences, bins - 2)
+        bin_width = inc_data
+        bound -= inc_data
+        first = True
+        left_bound = None
+        right_bound = None
+        count = []
+        min_bound = bound
+        max_bound = None
+        for i in range(bins + 1):
+            if not first:
+                right_bound = bound
+                count.append(self.find_count_at_range(differences, left_bound, right_bound))
+            else:
+                first = False
+            left_bound = bound
+            number = Label(x_chart, text=str(bound), font=("Arial", 10))
+            number.place(x=i * inc, y=10)
+            bound += inc_data
+        max_bound = bound - inc_data
+        _, inc_data = self.calculate_inc_data(count, 12)
+        bound = 0
+        for i in range(13):
+            number = Label(y_chart, text=str(bound), font=("Arial", 10))
+            number.place(x=20, y=(425 - i*35))
+            bound += inc_data
+        x1_point = 0
+        x2_point = 0
+        max_bound_y = bound - inc_data;
+        for i in count:
+            x2_point += inc
+            chart.create_rectangle(x1_point, 421, x2_point, 421 - (i*420/max_bound_y), fill="purple")
+            x1_point = x2_point
+        x_point = 0
+        for i in range(bins + 1):
+            chart.create_line(x_point, 0, x_point, 420, fill="#a6a6a6")
+            x_chart.create_line(x_point, 0, x_point, 10, fill="black")
+            x_point += inc
+        self.create_normal_curve(differences, chart, min_bound, max_bound, max_bound_y, bin_width)
+
+    def create_normal_curve(self, data, chart, min_bound, max_bound, max_bound_y, bin_width):
+        std = np.std(data)
+        mean = np.mean(data)
+        print(std)
+        print(mean)
+        inc_x = 570/abs(max_bound - min_bound)
+        inc_y = 420/max_bound_y
+        print(data)
+        x1_point = 0
+        y1_point = 0
+        for x in range(min_bound, max_bound + 1):
+            y = (1/(std*sqrt(2*math.pi)))*math.e**(-(x - mean)**2/(2*std**2))
+            y2_point = y * len(data) * bin_width * inc_y
+            x2_point = x1_point + inc_x
+            #print(y1_point)
+            #print(y2_point)
+            #print(y)
+            #print("p1 : ", int(x1_point), 420 - int(y1_point))
+            #print("p1 : ", int(x2_point), 420 - int(y2_point))
+            chart.create_line(int(x1_point), 420 - int(y1_point), int(x2_point), 420 - int(y2_point), fill="orange")
+            y1_point = y2_point
+            x1_point = x2_point
+
+
+    def calculate_inc_data(self, data, bins):
+        min_data = min(data)
+        inc_data = math.ceil((abs(max(data) - min_data))/bins)
+        return math.ceil(min_data), inc_data
+
+    def find_count_at_range(self, differences, left_bound, right_bound):
+        count = 0
+        for diff in differences:
+            if left_bound <= diff < right_bound:
+                count += 1
+        return count
+
+
 
     def change_colors(self, value1, value2, model1, model2):
-        if model1 > model2:
+        if model1 < model2:
             value1.config(fg="green")
             value2.config(fg="red")
-        elif model1 < model2:
+        elif model1 > model2:
             value1.config(fg="red")
             value2.config(fg="green")
 
@@ -156,6 +298,7 @@ class Regression:
             self.page = 2
             self.clear_container()
             self.button.config(text="Ocena jakości")
+            self.hist()
         else:
             self.page = 1
             self.clear_container()
